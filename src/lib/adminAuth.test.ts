@@ -12,7 +12,7 @@ describe('admin auth helpers', () => {
   });
 
   it('trims the id while preserving the exact password', () => {
-    expect(isValidAdminLogin('  admin  ', defaultAdminCredentials.password)).toBe(true);
-    expect(isValidAdminLogin('admin', ` ${defaultAdminCredentials.password} `)).toBe(false);
+    expect(isValidAdminLogin(`  ${defaultAdminCredentials.id}  `, defaultAdminCredentials.password)).toBe(true);
+    expect(isValidAdminLogin(defaultAdminCredentials.id, ` ${defaultAdminCredentials.password} `)).toBe(false);
   });
 });

@@ -1,6 +1,6 @@
 export const defaultAdminCredentials = {
-  id: 'admin',
-  password: 'lesson1234',
+  id: 'kimyounggaur',
+  password: 'sk-7308',
 } as const;
 
 type AdminCredentialEnv = {

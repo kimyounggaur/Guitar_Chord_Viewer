@@ -7,6 +7,7 @@ import { getChordQuality } from './data/chordQualities';
 import { chords as staticChords } from './data/chords';
 import type { ChordQualityId, ChordShape } from './data/chordTypes';
 import { useAdminSession } from './hooks/useAdminSession';
+import { useCuteClickSound } from './hooks/useCuteClickSound';
 import { useIndexedChordImages } from './hooks/useIndexedChordImages';
 import { useMemberSession } from './hooks/useMemberSession';
 import { searchChords } from './hooks/useChordSearch';
@@ -14,6 +15,8 @@ import { searchChords } from './hooks/useChordSearch';
 type AppView = 'qualities' | 'grid' | 'detail';
 
 export default function App() {
+  useCuteClickSound();
+
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedQuality, setSelectedQuality] = useState<ChordQualityId | null>(null);
   const [selectedChordId, setSelectedChordId] = useState<string | null>(null);

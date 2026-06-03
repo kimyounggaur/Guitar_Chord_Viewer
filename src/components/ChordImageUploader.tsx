@@ -28,7 +28,10 @@ export default function ChordImageUploader({ chord, uploadedImage, error, canMan
 
   return (
     <div className="mx-auto mt-5 flex max-w-3xl flex-wrap items-center justify-center gap-3 rounded-[8px] border border-rose-100 bg-white px-4 py-3 shadow-neumorphic">
-      <label className="inline-flex h-10 items-center gap-2 rounded-full border border-rose-100 bg-white px-4 text-sm font-bold text-rose-400 shadow-neumorphic transition hover:scale-105 focus-within:ring-4 focus-within:ring-rose-100">
+      <label
+        className="inline-flex h-10 items-center gap-2 rounded-full border border-rose-100 bg-white px-4 text-sm font-bold text-rose-400 shadow-neumorphic transition hover:scale-105 focus-within:ring-4 focus-within:ring-rose-100"
+        data-pop-sound
+      >
         <Upload size={16} aria-hidden="true" />
         업로드
         <input className="sr-only" type="file" accept="image/svg+xml,image/png,image/webp" onChange={handleChange} />
