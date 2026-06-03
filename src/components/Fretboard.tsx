@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { ChordShape, FingerPosition } from '../data/chordTypes';
+import { fretboardImageClassName, fretboardImageFrameClassName } from '../lib/fretboardImageClass';
 
 type Props = {
   shape: ChordShape;
@@ -32,6 +33,11 @@ function fretLineX(fret: number, fretCount: number): number {
   return nutX + fret * space;
 }
 
+function publicChordAsset(path: string): string {
+  const base = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
+  return `${base}${path.replace(/^\//, '')}`;
+}
+
 export default function Fretboard({ shape, size = 'thumb' }: Props) {
   const imageUrl = shape.uploadedImageUrl ?? shape.image;
   const [imageFailed, setImageFailed] = useState(false);
@@ -46,21 +52,18 @@ export default function Fretboard({ shape, size = 'thumb' }: Props) {
 
   if (imageUrl && !imageFailed) {
     return (
-      <div className={isLarge ? 'mx-auto w-full max-w-5xl' : 'w-full'}>
+      <div className={fretboardImageFrameClassName(size)}>
         <img
-          src={usePlaceholder ? '/chords/placeholders/chord-placeholder.svg' : imageUrl}
+          src={usePlaceholder ? publicChordAsset('/chords/placeholders/chord-placeholder.svg') : imageUrl}
           alt={`${shape.title} 기타 코드 다이어그램`}
           loading="lazy"
-          className={
-            isLarge
-              ? 'mx-auto aspect-[16/9] w-full rounded-[8px] object-contain shadow-neumorphic'
-              : 'aspect-[16/9] w-full rounded-[6px] object-contain'
-          }
+          className={fretboardImageClassName(size)}
           onError={() => {
             if (usePlaceholder) {
               setImageFailed(true);
               return;
             }
+
             setUsePlaceholder(true);
           }}
         />
