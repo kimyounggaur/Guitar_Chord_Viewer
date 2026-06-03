@@ -68,4 +68,11 @@ describe('searchChords', () => {
       'f_minor7',
     ]);
   });
+
+  it('searches every chord when a term is entered even if a quality is selected', () => {
+    expect(searchChords(fixtures, { selectedQuality: 'major', searchTerm: 'F' }).map((chord) => chord.id)).toEqual([
+      'f_major',
+      'f_minor7',
+    ]);
+  });
 });

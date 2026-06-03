@@ -31,12 +31,15 @@ export default function App() {
     [allChords, selectedChordId],
   );
 
+  const hasSearchTerm = searchTerm.trim().length > 0;
+  const activeQuality = hasSearchTerm ? null : selectedQuality;
+
   const visibleChords = useMemo(
-    () => searchChords(allChords, { searchTerm, selectedQuality }),
-    [allChords, searchTerm, selectedQuality],
+    () => searchChords(allChords, { searchTerm, selectedQuality: activeQuality }),
+    [activeQuality, allChords, searchTerm],
   );
 
-  const view: AppView = selectedChord ? 'detail' : selectedQuality || searchTerm.trim() ? 'grid' : 'qualities';
+  const view: AppView = selectedChord && !hasSearchTerm ? 'detail' : activeQuality || hasSearchTerm ? 'grid' : 'qualities';
 
   const handleHome = () => {
     setSelectedChordId(null);
@@ -54,6 +57,13 @@ export default function App() {
     setSelectedChordId(shape.id);
   };
 
+  const handleSearchChange = (value: string) => {
+    setSearchTerm(value);
+    if (value.trim()) {
+      setSelectedChordId(null);
+    }
+  };
+
   const handleBack = () => {
     if (selectedChord) {
       setSelectedChordId(null);
@@ -66,7 +76,7 @@ export default function App() {
 
   return (
     <main className="min-h-screen overflow-x-hidden bg-[#fbfbfb] text-stone-800">
-      <AppHeader searchTerm={searchTerm} onSearchChange={setSearchTerm} onHome={handleHome} />
+      <AppHeader searchTerm={searchTerm} onSearchChange={handleSearchChange} onHome={handleHome} />
 
       <div className="animate-[viewIn_.25s_ease_both]">
         {view === 'qualities' ? (
@@ -76,7 +86,7 @@ export default function App() {
         {view === 'grid' ? (
           <ChordGrid
             chords={visibleChords}
-            quality={selectedQuality ? getChordQuality(selectedQuality) : null}
+            quality={activeQuality ? getChordQuality(activeQuality) : null}
             searchTerm={searchTerm}
             onSelectChord={handleSelectChord}
             onBack={handleBack}

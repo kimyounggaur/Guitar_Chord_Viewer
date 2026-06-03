@@ -13,7 +13,7 @@ export function searchChords(chords: ChordShape[], options: ChordSearchOptions):
   const normalizedTerm = options.searchTerm.trim().toLowerCase();
 
   return chords.filter((chord) => {
-    const qualityMatches = options.selectedQuality ? chord.quality === options.selectedQuality : true;
+    const qualityMatches = options.selectedQuality && !normalizedTerm ? chord.quality === options.selectedQuality : true;
     if (!qualityMatches) {
       return false;
     }
