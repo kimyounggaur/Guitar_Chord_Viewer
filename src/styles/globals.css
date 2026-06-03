@@ -43,6 +43,140 @@ button {
   box-shadow: 6px 6px 14px rgba(0, 0, 0, 0.08), -6px -6px 14px rgba(255, 255, 255, 0.9);
 }
 
+.quality-bubble {
+  --bubble-color: #10b981;
+  isolation: isolate;
+  transform-origin: 50% 60%;
+  transition:
+    transform 360ms cubic-bezier(0.2, 1.4, 0.32, 1),
+    box-shadow 360ms ease,
+    filter 360ms ease;
+}
+
+.quality-bubble::before {
+  position: absolute;
+  inset: -10px;
+  z-index: -1;
+  border-radius: 9999px;
+  content: "";
+  background:
+    radial-gradient(circle at 30% 20%, color-mix(in srgb, var(--bubble-color) 28%, transparent), transparent 34%),
+    radial-gradient(circle at 70% 78%, color-mix(in srgb, var(--bubble-color) 20%, transparent), transparent 32%);
+  opacity: 0;
+  transform: scale(0.68);
+  transition:
+    opacity 260ms ease,
+    transform 360ms cubic-bezier(0.2, 1.4, 0.32, 1);
+}
+
+.quality-bubble::after {
+  position: absolute;
+  inset: -4px;
+  border: 2px solid color-mix(in srgb, var(--bubble-color) 45%, transparent);
+  border-radius: 9999px;
+  content: "";
+  opacity: 0;
+  transform: scale(0.86);
+}
+
+.quality-bubble-core {
+  background:
+    radial-gradient(circle at 35% 28%, rgba(255, 255, 255, 0.98), rgba(255, 255, 255, 0.46) 38%, transparent 62%),
+    rgba(255, 255, 255, 0.58);
+  overflow: hidden;
+}
+
+.quality-bubble-core::before {
+  position: absolute;
+  top: -30%;
+  left: -65%;
+  width: 58%;
+  height: 160%;
+  content: "";
+  background: linear-gradient(110deg, transparent, rgba(255, 255, 255, 0.9), transparent);
+  transform: rotate(18deg);
+}
+
+.quality-bubble-label {
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.88);
+  transition:
+    transform 280ms cubic-bezier(0.2, 1.4, 0.32, 1),
+    letter-spacing 280ms ease;
+}
+
+.quality-bubble-sparkles {
+  position: absolute;
+  inset: -15px;
+  border-radius: 9999px;
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.82) rotate(-8deg);
+}
+
+.quality-bubble-sparkles::before,
+.quality-bubble-sparkles::after {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 9999px;
+  content: "";
+  background: var(--bubble-color);
+  box-shadow:
+    18px 10px 0 -2px color-mix(in srgb, var(--bubble-color) 60%, white),
+    72px 4px 0 -1px color-mix(in srgb, var(--bubble-color) 45%, white),
+    100px 42px 0 -2px color-mix(in srgb, var(--bubble-color) 65%, white),
+    20px 92px 0 -1px color-mix(in srgb, var(--bubble-color) 45%, white),
+    104px 104px 0 -2px color-mix(in srgb, var(--bubble-color) 55%, white);
+}
+
+.quality-bubble-sparkles::before {
+  top: 7px;
+  left: 4px;
+}
+
+.quality-bubble-sparkles::after {
+  right: 16px;
+  bottom: 12px;
+  transform: scale(0.72);
+}
+
+.quality-bubble:hover,
+.quality-bubble:focus-visible {
+  animation: qualityBubbleHop 620ms cubic-bezier(0.2, 1.4, 0.32, 1) both;
+  box-shadow:
+    0 14px 28px rgba(15, 23, 42, 0.14),
+    0 10px 22px color-mix(in srgb, var(--bubble-color) 20%, transparent),
+    -7px -7px 15px rgba(255, 255, 255, 0.95);
+  filter: saturate(1.12);
+}
+
+.quality-bubble:hover::before,
+.quality-bubble:focus-visible::before {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.quality-bubble:hover::after,
+.quality-bubble:focus-visible::after {
+  animation: qualityBubbleRing 680ms ease-out both;
+}
+
+.quality-bubble:hover .quality-bubble-core::before,
+.quality-bubble:focus-visible .quality-bubble-core::before {
+  animation: qualityBubbleShine 720ms ease-out both;
+}
+
+.quality-bubble:hover .quality-bubble-label,
+.quality-bubble:focus-visible .quality-bubble-label {
+  letter-spacing: 0.02em;
+  transform: translateY(-2px) scale(1.07);
+}
+
+.quality-bubble:hover .quality-bubble-sparkles,
+.quality-bubble:focus-visible .quality-bubble-sparkles {
+  animation: qualityBubbleSparkles 760ms ease-out both;
+}
+
 .header-mascot-stage {
   position: relative;
   display: none;
@@ -339,6 +473,55 @@ button {
   100% {
     opacity: 0;
     transform: translateX(76%) skewX(-14deg);
+  }
+}
+
+@keyframes qualityBubbleHop {
+  0% {
+    transform: translateY(0) scale(1);
+  }
+  38% {
+    transform: translateY(-10px) scale(1.1, 0.94);
+  }
+  64% {
+    transform: translateY(2px) scale(0.98, 1.05);
+  }
+  100% {
+    transform: translateY(-5px) scale(1.07);
+  }
+}
+
+@keyframes qualityBubbleRing {
+  0% {
+    opacity: 0.7;
+    transform: scale(0.9);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.28);
+  }
+}
+
+@keyframes qualityBubbleShine {
+  0% {
+    transform: translateX(0) rotate(18deg);
+  }
+  100% {
+    transform: translateX(315%) rotate(18deg);
+  }
+}
+
+@keyframes qualityBubbleSparkles {
+  0% {
+    opacity: 0;
+    transform: scale(0.72) rotate(-10deg);
+  }
+  35% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.12) rotate(9deg);
   }
 }
 
