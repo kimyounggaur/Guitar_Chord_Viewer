@@ -28,7 +28,7 @@ export default function ChordGrid({ chords, quality, searchTerm, onSelectChord }
           {chords.length} chords
         </span>
       </div>
-      <div className="grid flex-1 auto-rows-fr grid-cols-2 gap-[clamp(16px,1.6vw,28px)] md:grid-cols-3 lg:grid-cols-4">
+      <div className="chord-grid-surface grid flex-1 auto-rows-fr grid-cols-2 gap-[clamp(16px,1.6vw,28px)] md:grid-cols-3 lg:grid-cols-4">
         {chords.map((shape, index) => (
           <ChordCard key={shape.id} shape={shape} onSelect={onSelectChord} featured={index === 0} />
         ))}
