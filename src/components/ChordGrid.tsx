@@ -16,8 +16,8 @@ export default function ChordGrid({ chords, quality, searchTerm, onSelectChord }
   }
 
   return (
-    <section className="mx-auto max-w-[1180px] px-5 pb-12 sm:px-8">
-      <div className="mb-5 flex items-end justify-between gap-4">
+    <section className="mx-auto flex min-h-[calc(100vh-clamp(76px,9vh,112px))] w-full max-w-[1760px] flex-col px-[clamp(24px,5vw,84px)] pb-[clamp(24px,4vh,56px)]">
+      <div className="mb-[clamp(16px,2.4vh,30px)] flex items-end justify-between gap-4">
         <h1
           className="font-display text-3xl font-extrabold text-stone-700 sm:text-4xl"
           style={{ color: quality?.color ?? '#44403c' }}
@@ -28,7 +28,7 @@ export default function ChordGrid({ chords, quality, searchTerm, onSelectChord }
           {chords.length} chords
         </span>
       </div>
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+      <div className="grid flex-1 auto-rows-fr grid-cols-2 gap-[clamp(16px,1.6vw,28px)] md:grid-cols-3 lg:grid-cols-4">
         {chords.map((shape, index) => (
           <ChordCard key={shape.id} shape={shape} onSelect={onSelectChord} featured={index === 0} />
         ))}

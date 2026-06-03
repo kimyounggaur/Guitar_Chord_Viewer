@@ -8,7 +8,7 @@ type Props = {
 
 export default function AppHeader({ searchTerm, onSearchChange, onHome }: Props) {
   return (
-    <header className="mx-auto flex w-full max-w-[1180px] flex-wrap items-center justify-between gap-4 px-5 py-6 sm:px-8">
+    <header className="mx-auto flex h-[clamp(76px,9vh,112px)] w-full max-w-[1760px] flex-wrap items-center justify-between gap-4 px-[clamp(24px,5vw,84px)] py-4">
       <div className="flex min-w-0 flex-1 items-center gap-3">
         <button
           type="button"
@@ -18,7 +18,7 @@ export default function AppHeader({ searchTerm, onSearchChange, onHome }: Props)
         >
           <Home size={19} aria-hidden="true" />
         </button>
-        <label className="relative min-w-[220px] flex-1 sm:max-w-[560px]">
+        <label className="relative min-w-[260px] flex-1 sm:max-w-[620px]">
           <Search
             className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-rose-300"
             size={20}

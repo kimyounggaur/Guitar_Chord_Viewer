@@ -41,7 +41,7 @@ export default function ChordDetail({
   }, [onBack]);
 
   return (
-    <section className="mx-auto max-w-[1180px] px-5 pb-12 sm:px-8">
+    <section className="mx-auto min-h-[calc(100vh-clamp(76px,9vh,112px))] w-full max-w-[1760px] px-[clamp(24px,5vw,84px)] pb-[clamp(24px,4vh,56px)]">
       <button
         type="button"
         onClick={onBack}

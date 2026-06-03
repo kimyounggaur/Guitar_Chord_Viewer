@@ -33,5 +33,6 @@ export function qualityAssetSlug(quality: ChordQualityId): string {
 }
 
 export function chordImagePath(quality: ChordQualityId, root: string): string {
-  return `/chords/${qualityAssetSlug(quality)}/${slugRoot(root)}.png`;
+  const base = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
+  return `${base}chords/${qualityAssetSlug(quality)}/${slugRoot(root)}.png`;
 }

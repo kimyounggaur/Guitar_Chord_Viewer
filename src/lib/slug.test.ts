@@ -17,6 +17,6 @@ describe('slug helpers', () => {
   });
 
   it('builds public image paths using normalized quality and root slugs', () => {
-    expect(chordImagePath('major7', 'F#')).toBe('/chords/major7/f-sharp.png');
+    expect(chordImagePath('major7', 'F#')).toBe(`${import.meta.env.BASE_URL}chords/major7/f-sharp.png`);
   });
 });
