@@ -34,6 +34,39 @@ export default function AppHeader({ searchTerm, onSearchChange, onHome }: Props)
           />
         </label>
       </div>
+      <div className="header-mascot-stage" aria-hidden="true">
+        <svg className="header-mascot" viewBox="0 0 180 88" role="img">
+          <g className="mascot-shadow">
+            <ellipse cx="90" cy="77" rx="31" ry="5" fill="rgba(15, 23, 42, 0.12)" />
+          </g>
+          <g className="mascot-body">
+            <circle cx="74" cy="28" r="16" fill="#fff7ed" stroke="#fb7185" strokeWidth="3" />
+            <path d="M61 27c4-14 23-16 29-4 1 2 1 5 0 8-8-5-18-5-29-4Z" fill="#f9a8d4" />
+            <circle cx="69" cy="29" r="2.4" fill="#3f3f46" />
+            <circle cx="80" cy="29" r="2.4" fill="#3f3f46" />
+            <path d="M70 36c4 3 8 3 12 0" fill="none" stroke="#fb7185" strokeLinecap="round" strokeWidth="2" />
+
+            <path d="M62 45c7-10 25-10 32 0l-4 22H66l-4-22Z" fill="#a7f3d0" stroke="#10b981" strokeWidth="3" />
+            <path className="mascot-leg-left" d="M72 66l-7 10" fill="none" stroke="#475569" strokeLinecap="round" strokeWidth="5" />
+            <path className="mascot-leg-right" d="M84 66l8 10" fill="none" stroke="#475569" strokeLinecap="round" strokeWidth="5" />
+
+            <g className="mascot-guitar">
+              <path d="M91 47c10-8 21-8 28 0 5 6 4 15-2 20-8 6-20 2-25-7-2-4-3-9-1-13Z" fill="#fbbf24" stroke="#92400e" strokeWidth="3" />
+              <circle cx="105" cy="56" r="6" fill="#7c2d12" />
+              <path d="M115 48l29-18" stroke="#92400e" strokeLinecap="round" strokeWidth="5" />
+              <path d="M139 28l9-5" stroke="#92400e" strokeLinecap="round" strokeWidth="8" />
+              <path d="M98 52l40-24M100 58l42-25M101 63l43-27" stroke="#fff7ed" strokeLinecap="round" strokeWidth="1.5" />
+            </g>
+
+            <path className="mascot-arm-left" d="M65 48c-8 2-12 7-13 13" fill="none" stroke="#fb7185" strokeLinecap="round" strokeWidth="5" />
+            <path className="mascot-arm-right" d="M88 48c7 3 12 8 16 13" fill="none" stroke="#fb7185" strokeLinecap="round" strokeWidth="5" />
+            <g className="mascot-notes" fill="#38bdf8">
+              <path d="M34 32v14a5 5 0 1 1-3-5V28h13v5H34Z" />
+              <path d="M151 47v12a4 4 0 1 1-3-4V43h11v4h-8Z" />
+            </g>
+          </g>
+        </svg>
+      </div>
       <button
         type="button"
         onClick={onHome}

@@ -43,6 +43,77 @@ button {
   box-shadow: 6px 6px 14px rgba(0, 0, 0, 0.08), -6px -6px 14px rgba(255, 255, 255, 0.9);
 }
 
+.header-mascot-stage {
+  position: relative;
+  display: none;
+  height: 58px;
+  min-width: clamp(180px, 28vw, 430px);
+  flex: 0.72 1 220px;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.header-mascot-stage::before {
+  position: absolute;
+  right: 10px;
+  bottom: 8px;
+  left: 10px;
+  height: 2px;
+  border-radius: 9999px;
+  content: "";
+  background: linear-gradient(90deg, transparent, rgba(251, 113, 133, 0.18), rgba(16, 185, 129, 0.18), transparent);
+}
+
+.header-mascot {
+  position: absolute;
+  bottom: -8px;
+  left: 0;
+  width: 142px;
+  height: 70px;
+  transform-origin: 50% 80%;
+  animation: mascotWalk 9s linear infinite;
+}
+
+.mascot-body {
+  transform-origin: 88px 68px;
+  animation: mascotBounce 680ms ease-in-out infinite alternate;
+}
+
+.mascot-guitar {
+  transform-origin: 108px 58px;
+  animation: mascotStrum 540ms ease-in-out infinite alternate;
+}
+
+.mascot-arm-right {
+  transform-origin: 90px 48px;
+  animation: mascotArmStrum 360ms ease-in-out infinite alternate;
+}
+
+.mascot-arm-left {
+  transform-origin: 65px 48px;
+  animation: mascotArmHold 720ms ease-in-out infinite alternate;
+}
+
+.mascot-leg-left {
+  transform-origin: 72px 66px;
+  animation: mascotLegLeft 520ms ease-in-out infinite alternate;
+}
+
+.mascot-leg-right {
+  transform-origin: 84px 66px;
+  animation: mascotLegRight 520ms ease-in-out infinite alternate;
+}
+
+.mascot-notes {
+  animation: mascotNotes 1.3s ease-in-out infinite;
+}
+
+@media (min-width: 900px) {
+  .header-mascot-stage {
+    display: block;
+  }
+}
+
 .chord-grid-surface {
   position: relative;
   isolation: isolate;
@@ -268,5 +339,108 @@ button {
   100% {
     opacity: 0;
     transform: translateX(76%) skewX(-14deg);
+  }
+}
+
+@keyframes mascotWalk {
+  0% {
+    transform: translateX(-150px) scaleX(1);
+  }
+  44% {
+    transform: translateX(calc(100% - 8px)) scaleX(1);
+  }
+  50% {
+    transform: translateX(calc(100% - 8px)) scaleX(-1);
+  }
+  94% {
+    transform: translateX(-150px) scaleX(-1);
+  }
+  100% {
+    transform: translateX(-150px) scaleX(1);
+  }
+}
+
+@keyframes mascotBounce {
+  from {
+    transform: translateY(0) rotate(-1deg);
+  }
+  to {
+    transform: translateY(-4px) rotate(1deg);
+  }
+}
+
+@keyframes mascotStrum {
+  from {
+    transform: rotate(-2deg);
+  }
+  to {
+    transform: rotate(3deg);
+  }
+}
+
+@keyframes mascotArmStrum {
+  from {
+    transform: rotate(-12deg);
+  }
+  to {
+    transform: rotate(12deg);
+  }
+}
+
+@keyframes mascotArmHold {
+  from {
+    transform: rotate(4deg);
+  }
+  to {
+    transform: rotate(-5deg);
+  }
+}
+
+@keyframes mascotLegLeft {
+  from {
+    transform: rotate(10deg);
+  }
+  to {
+    transform: rotate(-8deg);
+  }
+}
+
+@keyframes mascotLegRight {
+  from {
+    transform: rotate(-10deg);
+  }
+  to {
+    transform: rotate(8deg);
+  }
+}
+
+@keyframes mascotNotes {
+  0% {
+    opacity: 0;
+    transform: translateY(7px);
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .header-mascot,
+  .mascot-body,
+  .mascot-guitar,
+  .mascot-arm-right,
+  .mascot-arm-left,
+  .mascot-leg-left,
+  .mascot-leg-right,
+  .mascot-notes {
+    animation: none;
+  }
+
+  .header-mascot {
+    transform: translateX(20px);
   }
 }
