@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import type { SyntheticEvent } from 'react';
 import type { ChordShape, FingerPosition } from '../data/chordTypes';
 import { fingerName } from '../lib/fingerLabels';
 import { fretboardImageClassName, fretboardImageFrameClassName } from '../lib/fretboardImageClass';
@@ -47,6 +48,10 @@ function publicChordAsset(path: string): string {
   return `${base}${path.replace(/^\//, '')}`;
 }
 
+function preventChordImageDownload(event: SyntheticEvent): void {
+  event.preventDefault();
+}
+
 export default function Fretboard({ shape, size = 'thumb' }: Props) {
   const imageUrl = shape.uploadedImageUrl ?? shape.image;
   const [imageFailed, setImageFailed] = useState(false);
@@ -61,12 +66,15 @@ export default function Fretboard({ shape, size = 'thumb' }: Props) {
 
   if (imageUrl && !imageFailed) {
     return (
-      <div className={fretboardImageFrameClassName(size)}>
+      <div className={fretboardImageFrameClassName(size)} onContextMenu={preventChordImageDownload}>
         <img
           src={usePlaceholder ? publicChordAsset('/chords/placeholders/chord-placeholder.svg') : imageUrl}
           alt={`${shape.title} 기타 코드 다이어그램`}
           loading="lazy"
+          draggable={false}
           className={fretboardImageClassName(size)}
+          onContextMenu={preventChordImageDownload}
+          onDragStart={preventChordImageDownload}
           onError={() => {
             if (usePlaceholder) {
               setImageFailed(true);
@@ -112,6 +120,8 @@ export default function Fretboard({ shape, size = 'thumb' }: Props) {
       role="img"
       aria-label={`${shape.title} 기타 코드 다이어그램`}
       className={isLarge ? 'mx-auto w-full max-w-5xl drop-shadow-lg' : 'w-full'}
+      onContextMenu={preventChordImageDownload}
+      onDragStart={preventChordImageDownload}
     >
       <rect x="0" y="0" width="560" height="320" rx="18" fill="#fffefe" />
       <text x="28" y="40" fill="#2f55a4" fontSize="28" fontWeight="800">
