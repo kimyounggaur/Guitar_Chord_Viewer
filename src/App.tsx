@@ -6,10 +6,9 @@ import QualitySelector from './components/QualitySelector';
 import { getChordQuality } from './data/chordQualities';
 import { chords as staticChords } from './data/chords';
 import type { ChordQualityId, ChordShape } from './data/chordTypes';
-import { useAdminSession } from './hooks/useAdminSession';
 import { useCuteClickSound } from './hooks/useCuteClickSound';
 import { useIndexedChordImages } from './hooks/useIndexedChordImages';
-import { useMemberSession } from './hooks/useMemberSession';
+import { useSupabaseAuthSession } from './hooks/useSupabaseAuthSession';
 import { searchChords } from './hooks/useChordSearch';
 
 type AppView = 'qualities' | 'grid' | 'detail';
@@ -21,9 +20,8 @@ export default function App() {
   const [selectedQuality, setSelectedQuality] = useState<ChordQualityId | null>(null);
   const [selectedChordId, setSelectedChordId] = useState<string | null>(null);
   const { imagesByChordId, error, saveImageForChord, deleteImageForChord } = useIndexedChordImages();
-  const adminSession = useAdminSession();
-  const memberSession = useMemberSession();
-  const canSearch = adminSession.isAdmin || memberSession.isMember;
+  const authSession = useSupabaseAuthSession();
+  const canSearch = authSession.isAdmin || authSession.isMember;
 
   useEffect(() => {
     if (!canSearch && searchTerm) {
@@ -93,7 +91,7 @@ export default function App() {
   };
 
   const handleSaveImage = async (chord: ChordShape, file: File) => {
-    if (!adminSession.isAdmin) {
+    if (!authSession.isAdmin) {
       return;
     }
 
@@ -101,7 +99,7 @@ export default function App() {
   };
 
   const handleDeleteImage = async (chordId: string) => {
-    if (!adminSession.isAdmin) {
+    if (!authSession.isAdmin) {
       return;
     }
 
@@ -115,17 +113,20 @@ export default function App() {
         canSearch={canSearch}
         onSearchChange={handleSearchChange}
         onHome={handleHome}
-        isMember={memberSession.isMember}
-        memberId={memberSession.memberId}
-        memberLoginError={memberSession.loginError}
-        memberSignupError={memberSession.signupError}
-        onMemberSignup={memberSession.signup}
-        onMemberLogin={memberSession.login}
-        onMemberLogout={memberSession.logout}
-        isAdmin={adminSession.isAdmin}
-        adminError={adminSession.loginError}
-        onAdminLogin={adminSession.login}
-        onAdminLogout={adminSession.logout}
+        isAuthLoading={authSession.isLoading}
+        authConfigError={authSession.authConfigError}
+        isMember={authSession.isMember}
+        memberId={authSession.memberId}
+        memberLoginError={authSession.loginError}
+        memberSignupError={authSession.signupError}
+        memberSignupMessage={authSession.signupMessage}
+        onMemberSignup={authSession.signup}
+        onMemberLogin={authSession.login}
+        onMemberLogout={authSession.logout}
+        isAdmin={authSession.isAdmin}
+        adminError={authSession.adminError}
+        onAdminLogin={authSession.adminLogin}
+        onAdminLogout={authSession.logout}
       />
 
       <div className="animate-[viewIn_.25s_ease_both]">
@@ -150,7 +151,7 @@ export default function App() {
             relatedChords={allChords.filter((chord) => chord.quality === selectedChord.quality)}
             uploadedImage={imagesByChordId[selectedChord.id]}
             uploadError={error}
-            canManageImages={adminSession.isAdmin}
+            canManageImages={authSession.isAdmin}
             onSelectChord={handleSelectChord}
             onBack={handleBack}
             onSaveImage={handleSaveImage}

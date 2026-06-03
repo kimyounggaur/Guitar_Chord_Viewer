@@ -11,6 +11,34 @@ npm run build
 npm test
 ```
 
+## Supabase 인증 설정
+
+회원가입, 회원 로그인, 관리자 로그인은 Supabase Auth 이메일/비밀번호 인증을 사용합니다.
+
+1. Supabase 프로젝트에서 Authentication의 Email provider를 켭니다.
+2. SQL Editor에서 `supabase/auth_profiles.sql`을 실행합니다.
+3. 프로젝트 URL과 publishable key를 `.env` 또는 배포 환경변수에 설정합니다.
+
+```bash
+VITE_SUPABASE_URL=https://your-project-ref.supabase.co
+VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_your_key
+```
+
+관리자 계정은 먼저 Supabase Auth에 이메일/비밀번호 사용자로 만든 뒤, SQL Editor에서 해당 이메일을 `admin`으로 지정합니다.
+
+```sql
+insert into public.profiles (id, email, role)
+select id, email, 'admin'
+from auth.users
+where email = 'admin@example.com'
+on conflict (id) do update
+  set role = 'admin',
+      email = excluded.email,
+      updated_at = now();
+```
+
+회원은 `profiles.role = 'member'`, 관리자는 `profiles.role = 'admin'`일 때 권한이 부여됩니다.
+
 ## 주요 구조
 
 ```txt

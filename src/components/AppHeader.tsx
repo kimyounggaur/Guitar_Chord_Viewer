@@ -9,17 +9,20 @@ type Props = {
   canSearch: boolean;
   onSearchChange: (value: string) => void;
   onHome: () => void;
+  isAuthLoading: boolean;
+  authConfigError: string | null;
   isMember: boolean;
   memberId: string | null;
   memberLoginError: string | null;
   memberSignupError: string | null;
-  onMemberSignup: (id: string, password: string) => boolean;
-  onMemberLogin: (id: string, password: string) => boolean;
-  onMemberLogout: () => void;
+  memberSignupMessage: string | null;
+  onMemberSignup: (email: string, password: string) => Promise<boolean>;
+  onMemberLogin: (email: string, password: string) => Promise<boolean>;
+  onMemberLogout: () => Promise<void>;
   isAdmin: boolean;
   adminError: string | null;
-  onAdminLogin: (id: string, password: string) => boolean;
-  onAdminLogout: () => void;
+  onAdminLogin: (email: string, password: string) => Promise<boolean>;
+  onAdminLogout: () => Promise<void>;
 };
 
 export default function AppHeader({
@@ -27,10 +30,13 @@ export default function AppHeader({
   canSearch,
   onSearchChange,
   onHome,
+  isAuthLoading,
+  authConfigError,
   isMember,
   memberId,
   memberLoginError,
   memberSignupError,
+  memberSignupMessage,
   onMemberSignup,
   onMemberLogin,
   onMemberLogout,
@@ -40,11 +46,11 @@ export default function AppHeader({
   onAdminLogout,
 }: Props) {
   const [activePanel, setActivePanel] = useState<AuthPanel>(null);
-  const [signupId, setSignupId] = useState('');
+  const [signupEmail, setSignupEmail] = useState('');
   const [signupPassword, setSignupPassword] = useState('');
-  const [memberLoginId, setMemberLoginId] = useState('');
+  const [memberLoginEmail, setMemberLoginEmail] = useState('');
   const [memberLoginPassword, setMemberLoginPassword] = useState('');
-  const [adminId, setAdminId] = useState('');
+  const [adminEmail, setAdminEmail] = useState('');
   const [adminPassword, setAdminPassword] = useState('');
 
   const togglePanel = (panel: Exclude<AuthPanel, null>) => {
@@ -56,42 +62,42 @@ export default function AppHeader({
     onHome();
   };
 
-  const handleMemberSignupSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleMemberSignupSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (onMemberSignup(signupId, signupPassword)) {
+    if (await onMemberSignup(signupEmail, signupPassword)) {
       setActivePanel(null);
       setSignupPassword('');
       setMemberLoginPassword('');
     }
   };
 
-  const handleMemberLoginSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleMemberLoginSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (onMemberLogin(memberLoginId, memberLoginPassword)) {
+    if (await onMemberLogin(memberLoginEmail, memberLoginPassword)) {
       setActivePanel(null);
       setMemberLoginPassword('');
     }
   };
 
-  const handleAdminLoginSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleAdminLoginSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (onAdminLogin(adminId, adminPassword)) {
+    if (await onAdminLogin(adminEmail, adminPassword)) {
       setActivePanel(null);
       setAdminPassword('');
     }
   };
 
-  const handleMemberLogout = () => {
+  const handleMemberLogout = async () => {
     setActivePanel(null);
-    onMemberLogout();
+    await onMemberLogout();
   };
 
-  const handleAdminLogout = () => {
+  const handleAdminLogout = async () => {
     setActivePanel(null);
-    onAdminLogout();
+    await onAdminLogout();
   };
 
   return (
@@ -245,13 +251,14 @@ export default function AppHeader({
 
               {activePanel === 'member-signup' ? (
                 <form id="member-signup-panel" className="auth-login-panel" onSubmit={handleMemberSignupSubmit}>
+                  {authConfigError ? <p className="auth-access-error">{authConfigError}</p> : null}
                   <label className="auth-access-field">
-                    <span>아이디</span>
+                    <span>이메일</span>
                     <input
-                      type="text"
-                      value={signupId}
-                      onChange={(event) => setSignupId(event.target.value)}
-                      autoComplete="username"
+                      type="email"
+                      value={signupEmail}
+                      onChange={(event) => setSignupEmail(event.target.value)}
+                      autoComplete="email"
                       required
                     />
                   </label>
@@ -266,7 +273,8 @@ export default function AppHeader({
                     />
                   </label>
                   {memberSignupError ? <p className="auth-access-error">{memberSignupError}</p> : null}
-                  <button type="submit" className="auth-access-submit auth-access-submit--member">
+                  {memberSignupMessage ? <p className="auth-access-message">{memberSignupMessage}</p> : null}
+                  <button type="submit" className="auth-access-submit auth-access-submit--member" disabled={isAuthLoading}>
                     <UserPlus size={16} aria-hidden="true" />
                     가입하기
                   </button>
@@ -275,13 +283,14 @@ export default function AppHeader({
 
               {activePanel === 'member-login' ? (
                 <form id="member-login-panel" className="auth-login-panel" onSubmit={handleMemberLoginSubmit}>
+                  {authConfigError ? <p className="auth-access-error">{authConfigError}</p> : null}
                   <label className="auth-access-field">
-                    <span>아이디</span>
+                    <span>이메일</span>
                     <input
-                      type="text"
-                      value={memberLoginId}
-                      onChange={(event) => setMemberLoginId(event.target.value)}
-                      autoComplete="username"
+                      type="email"
+                      value={memberLoginEmail}
+                      onChange={(event) => setMemberLoginEmail(event.target.value)}
+                      autoComplete="email"
                       required
                     />
                   </label>
@@ -296,7 +305,7 @@ export default function AppHeader({
                     />
                   </label>
                   {memberLoginError ? <p className="auth-access-error">{memberLoginError}</p> : null}
-                  <button type="submit" className="auth-access-submit auth-access-submit--member">
+                  <button type="submit" className="auth-access-submit auth-access-submit--member" disabled={isAuthLoading}>
                     <LogIn size={16} aria-hidden="true" />
                     로그인
                   </button>
@@ -305,13 +314,14 @@ export default function AppHeader({
 
               {activePanel === 'admin-login' ? (
                 <form id="admin-login-panel" className="auth-login-panel" onSubmit={handleAdminLoginSubmit}>
+                  {authConfigError ? <p className="auth-access-error">{authConfigError}</p> : null}
                   <label className="auth-access-field">
-                    <span>아이디</span>
+                    <span>이메일</span>
                     <input
-                      type="text"
-                      value={adminId}
-                      onChange={(event) => setAdminId(event.target.value)}
-                      autoComplete="username"
+                      type="email"
+                      value={adminEmail}
+                      onChange={(event) => setAdminEmail(event.target.value)}
+                      autoComplete="email"
                       required
                     />
                   </label>
@@ -326,7 +336,7 @@ export default function AppHeader({
                     />
                   </label>
                   {adminError ? <p className="auth-access-error">{adminError}</p> : null}
-                  <button type="submit" className="auth-access-submit auth-access-submit--admin">
+                  <button type="submit" className="auth-access-submit auth-access-submit--admin" disabled={isAuthLoading}>
                     <LogIn size={16} aria-hidden="true" />
                     로그인
                   </button>
