@@ -79,6 +79,7 @@ export default function App() {
             quality={selectedQuality ? getChordQuality(selectedQuality) : null}
             searchTerm={searchTerm}
             onSelectChord={handleSelectChord}
+            onBack={handleBack}
           />
         ) : null}
 
