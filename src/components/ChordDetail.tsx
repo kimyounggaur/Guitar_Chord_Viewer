@@ -1,5 +1,6 @@
 import { ArrowLeft } from 'lucide-react';
 import { useEffect } from 'react';
+import type React from 'react';
 import type { ChordShape } from '../data/chordTypes';
 import type { ChordQuality } from '../data/chordQualities';
 import type { UploadedChordImageView } from '../hooks/useIndexedChordImages';
@@ -78,11 +79,16 @@ export default function ChordDetail({
                   type="button"
                   key={item.id}
                   onClick={() => onSelectChord(item)}
-                  className="w-[180px] shrink-0 rounded-[8px] border bg-white p-2 shadow-neumorphic transition hover:scale-[1.03] focus:outline-none focus-visible:ring-4 focus-visible:ring-emerald-100 lg:w-full"
-                  style={{ borderColor: selected ? quality.color : '#f3f4f6' }}
+                  className="related-chord-card w-[180px] shrink-0 p-2 focus:outline-none focus-visible:ring-4 focus-visible:ring-emerald-100 lg:w-full"
+                  style={
+                    {
+                      '--related-color': quality.color,
+                      borderColor: selected ? quality.color : '#f3f4f6',
+                    } as React.CSSProperties
+                  }
                   aria-pressed={selected}
                 >
-                  <span className="mb-2 block rounded-[6px] border border-dashed border-emerald-300 py-1 text-center text-sm font-extrabold text-emerald-600">
+                  <span className="related-chord-title mb-2 block py-1 text-center text-sm font-extrabold text-emerald-600">
                     {item.title}
                   </span>
                   <Fretboard shape={item} size="thumb" />
