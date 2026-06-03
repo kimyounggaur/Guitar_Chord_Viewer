@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { ChordShape, FingerPosition } from '../data/chordTypes';
+import { fingerName } from '../lib/fingerLabels';
 import { fretboardImageClassName, fretboardImageFrameClassName } from '../lib/fretboardImageClass';
 
 type Props = {
@@ -31,6 +32,14 @@ function fretCenter(fret: number, fretCount: number): number {
 function fretLineX(fret: number, fretCount: number): number {
   const space = (rightX - nutX) / fretCount;
   return nutX + fret * space;
+}
+
+function fingerXPercent(fret: number, fretCount: number): number {
+  return (fretCenter(fret, fretCount) / 560) * 100;
+}
+
+function fingerYPercent(stringNumber: number): number {
+  return (stringYs[stringNumber] / 320) * 100;
 }
 
 function publicChordAsset(path: string): string {
@@ -67,6 +76,32 @@ export default function Fretboard({ shape, size = 'thumb' }: Props) {
             setUsePlaceholder(true);
           }}
         />
+        <div className="finger-tooltip-layer" aria-hidden="false">
+          {shape.positions.map((position) => {
+            if (!position.finger || !position.fret || position.open || position.muted) {
+              return null;
+            }
+
+            const label = fingerName(position.finger);
+
+            return (
+              <span
+                key={`finger-tip-${position.string}-${position.fret}-${position.finger}`}
+                className="finger-tooltip-target"
+                style={{
+                  left: `${fingerXPercent(position.fret, fretCount)}%`,
+                  top: `${fingerYPercent(position.string)}%`,
+                }}
+                tabIndex={0}
+                aria-label={label}
+              >
+                <span className="finger-tooltip-label" role="tooltip">
+                  {label}
+                </span>
+              </span>
+            );
+          })}
+        </div>
       </div>
     );
   }
@@ -141,9 +176,16 @@ export default function Fretboard({ shape, size = 'thumb' }: Props) {
         }
 
         const x = fretCenter(position.fret, fretCount);
+        const label = position.finger ? fingerName(position.finger) : null;
 
         return (
-          <g key={`finger-${position.string}-${position.fret}`} transform={`translate(${x} ${y})`}>
+          <g
+            key={`finger-${position.string}-${position.fret}`}
+            className="svg-finger-tooltip-target"
+            transform={`translate(${x} ${y})`}
+            aria-label={label ?? undefined}
+          >
+            {label ? <title>{label}</title> : null}
             <rect x="-32" y="-18" width="64" height="36" rx="18" fill="#fffdf8" stroke="#232323" strokeWidth="3" />
             <line x1="-14" y1="-6" x2="14" y2="-15" stroke="#262626" strokeWidth="3" strokeLinecap="round" />
             <circle cx="0" cy="0" r="11" fill="#1f1f1d" />

@@ -11,6 +11,7 @@ describe('fretboard image classes', () => {
     expect(fretboardImageClassName('thumb')).toContain('max-h-full');
     expect(fretboardImageClassName('thumb')).toContain('max-w-full');
     expect(fretboardImageClassName('thumb')).toContain('object-contain');
+    expect(fretboardImageFrameClassName('thumb')).toContain('relative');
     expect(fretboardImageFrameClassName('large')).toContain('aspect-[3841/2713]');
   });
 });

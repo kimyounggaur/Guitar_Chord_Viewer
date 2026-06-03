@@ -5,6 +5,10 @@ export type ChordSearchOptions = {
   selectedQuality: ChordQualityId | null;
 };
 
+function isRootOnlySearch(term: string): boolean {
+  return /^[a-g](?:#|b)?$/.test(term);
+}
+
 export function searchChords(chords: ChordShape[], options: ChordSearchOptions): ChordShape[] {
   const normalizedTerm = options.searchTerm.trim().toLowerCase();
 
@@ -16,6 +20,10 @@ export function searchChords(chords: ChordShape[], options: ChordSearchOptions):
 
     if (!normalizedTerm) {
       return true;
+    }
+
+    if (isRootOnlySearch(normalizedTerm)) {
+      return chord.root.toLowerCase() === normalizedTerm;
     }
 
     const searchable = [chord.title, chord.root, chord.quality, ...(chord.tags ?? [])].map((value) => value.toLowerCase());
