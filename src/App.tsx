@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import AppHeader from './components/AppHeader';
 import ChordDetail from './components/ChordDetail';
 import ChordGrid from './components/ChordGrid';
@@ -8,6 +8,7 @@ import { chords as staticChords } from './data/chords';
 import type { ChordQualityId, ChordShape } from './data/chordTypes';
 import { useAdminSession } from './hooks/useAdminSession';
 import { useIndexedChordImages } from './hooks/useIndexedChordImages';
+import { useMemberSession } from './hooks/useMemberSession';
 import { searchChords } from './hooks/useChordSearch';
 
 type AppView = 'qualities' | 'grid' | 'detail';
@@ -18,6 +19,14 @@ export default function App() {
   const [selectedChordId, setSelectedChordId] = useState<string | null>(null);
   const { imagesByChordId, error, saveImageForChord, deleteImageForChord } = useIndexedChordImages();
   const adminSession = useAdminSession();
+  const memberSession = useMemberSession();
+  const canSearch = adminSession.isAdmin || memberSession.isMember;
+
+  useEffect(() => {
+    if (!canSearch && searchTerm) {
+      setSearchTerm('');
+    }
+  }, [canSearch, searchTerm]);
 
   const allChords = useMemo(
     () =>
@@ -60,6 +69,10 @@ export default function App() {
   };
 
   const handleSearchChange = (value: string) => {
+    if (!canSearch) {
+      return;
+    }
+
     setSearchTerm(value);
     if (value.trim()) {
       setSelectedChordId(null);
@@ -96,8 +109,16 @@ export default function App() {
     <main className="min-h-screen overflow-x-hidden bg-[#fbfbfb] text-stone-800">
       <AppHeader
         searchTerm={searchTerm}
+        canSearch={canSearch}
         onSearchChange={handleSearchChange}
         onHome={handleHome}
+        isMember={memberSession.isMember}
+        memberId={memberSession.memberId}
+        memberLoginError={memberSession.loginError}
+        memberSignupError={memberSession.signupError}
+        onMemberSignup={memberSession.signup}
+        onMemberLogin={memberSession.login}
+        onMemberLogout={memberSession.logout}
         isAdmin={adminSession.isAdmin}
         adminError={adminSession.loginError}
         onAdminLogin={adminSession.login}

@@ -1,11 +1,21 @@
-import { Home, Lock, LogIn, LogOut, Search } from 'lucide-react';
+import { Home, Lock, LogIn, LogOut, Search, ShieldCheck, UserCheck, UserPlus } from 'lucide-react';
 import type { FormEvent } from 'react';
 import { useState } from 'react';
 
+type AuthPanel = 'member-signup' | 'member-login' | 'admin-login' | null;
+
 type Props = {
   searchTerm: string;
+  canSearch: boolean;
   onSearchChange: (value: string) => void;
   onHome: () => void;
+  isMember: boolean;
+  memberId: string | null;
+  memberLoginError: string | null;
+  memberSignupError: string | null;
+  onMemberSignup: (id: string, password: string) => boolean;
+  onMemberLogin: (id: string, password: string) => boolean;
+  onMemberLogout: () => void;
   isAdmin: boolean;
   adminError: string | null;
   onAdminLogin: (id: string, password: string) => boolean;
@@ -14,32 +24,82 @@ type Props = {
 
 export default function AppHeader({
   searchTerm,
+  canSearch,
   onSearchChange,
   onHome,
+  isMember,
+  memberId,
+  memberLoginError,
+  memberSignupError,
+  onMemberSignup,
+  onMemberLogin,
+  onMemberLogout,
   isAdmin,
   adminError,
   onAdminLogin,
   onAdminLogout,
 }: Props) {
-  const [loginOpen, setLoginOpen] = useState(false);
+  const [activePanel, setActivePanel] = useState<AuthPanel>(null);
+  const [signupId, setSignupId] = useState('');
+  const [signupPassword, setSignupPassword] = useState('');
+  const [memberLoginId, setMemberLoginId] = useState('');
+  const [memberLoginPassword, setMemberLoginPassword] = useState('');
   const [adminId, setAdminId] = useState('');
   const [adminPassword, setAdminPassword] = useState('');
 
-  const handleLoginSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const togglePanel = (panel: Exclude<AuthPanel, null>) => {
+    setActivePanel((current) => (current === panel ? null : panel));
+  };
+
+  const handleHomeClick = () => {
+    setActivePanel(null);
+    onHome();
+  };
+
+  const handleMemberSignupSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    if (onMemberSignup(signupId, signupPassword)) {
+      setActivePanel(null);
+      setSignupPassword('');
+      setMemberLoginPassword('');
+    }
+  };
+
+  const handleMemberLoginSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    if (onMemberLogin(memberLoginId, memberLoginPassword)) {
+      setActivePanel(null);
+      setMemberLoginPassword('');
+    }
+  };
+
+  const handleAdminLoginSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (onAdminLogin(adminId, adminPassword)) {
-      setLoginOpen(false);
+      setActivePanel(null);
       setAdminPassword('');
     }
   };
 
+  const handleMemberLogout = () => {
+    setActivePanel(null);
+    onMemberLogout();
+  };
+
+  const handleAdminLogout = () => {
+    setActivePanel(null);
+    onAdminLogout();
+  };
+
   return (
-    <header className="mx-auto flex h-[clamp(76px,9vh,112px)] w-full max-w-[1760px] flex-wrap items-center justify-between gap-4 px-[clamp(24px,5vw,84px)] py-4">
+    <header className="mx-auto flex min-h-[clamp(76px,9vh,112px)] w-full max-w-[1760px] flex-wrap items-center justify-between gap-4 px-[clamp(24px,5vw,84px)] py-4">
       <div className="flex min-w-0 flex-1 items-center gap-3">
         <button
           type="button"
-          onClick={onHome}
+          onClick={handleHomeClick}
           className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-rose-100 bg-white text-rose-300 shadow-neumorphic transition hover:scale-105 focus:outline-none focus-visible:ring-4 focus-visible:ring-rose-200"
           aria-label="홈으로 이동"
         >
@@ -47,17 +107,29 @@ export default function AppHeader({
         </button>
         <label className="relative min-w-[260px] flex-1 sm:max-w-[620px]">
           <Search
-            className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-rose-300"
+            className={`pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 ${
+              canSearch ? 'text-rose-300' : 'text-stone-300'
+            }`}
             size={20}
             aria-hidden="true"
           />
           <input
             type="search"
             value={searchTerm}
-            onChange={(event) => onSearchChange(event.target.value)}
+            onChange={(event) => {
+              if (canSearch) {
+                onSearchChange(event.target.value);
+              }
+            }}
             aria-label="Search guitar chords"
+            disabled={!canSearch}
             placeholder="코드 검색"
-            className="h-12 w-full rounded-full border-2 border-rose-100 bg-white/90 pl-12 pr-5 text-base font-semibold text-stone-700 shadow-neumorphic-inset outline-none transition focus:border-rose-200 focus:ring-4 focus:ring-rose-100"
+            title={canSearch ? undefined : '회원 또는 관리자 로그인 후 검색 가능'}
+            className={`h-12 w-full rounded-full border-2 pl-12 pr-5 text-base font-semibold outline-none transition ${
+              canSearch
+                ? 'border-rose-100 bg-white/90 text-stone-700 shadow-neumorphic-inset focus:border-rose-200 focus:ring-4 focus:ring-rose-100'
+                : 'cursor-not-allowed border-stone-100 bg-stone-50 text-stone-400 placeholder:text-stone-300'
+            }`}
           />
         </label>
       </div>
@@ -95,39 +167,145 @@ export default function AppHeader({
         </svg>
       </div>
       <div className="flex shrink-0 items-center gap-3">
-        <div className="admin-access">
+        <div className="auth-access">
           {isAdmin ? (
-            <div className="flex items-center gap-2">
-              <span className="admin-status-pill">
-                <Lock size={14} aria-hidden="true" />
-                관리자
+            <div className="auth-button-row">
+              <span className="auth-status-pill auth-status-pill--admin">
+                <ShieldCheck size={14} aria-hidden="true" />
+                <span>관리자</span>
               </span>
               <button
                 type="button"
-                onClick={onAdminLogout}
-                className="admin-header-button"
+                onClick={handleAdminLogout}
+                className="auth-header-button auth-header-button--admin"
                 aria-label="관리자 로그아웃"
               >
                 <LogOut size={16} aria-hidden="true" />
-                로그아웃
+                <span>로그아웃</span>
               </button>
             </div>
           ) : (
             <>
-              <button
-                type="button"
-                onClick={() => setLoginOpen((open) => !open)}
-                className="admin-header-button"
-                aria-label="관리자 로그인"
-                aria-expanded={loginOpen}
-                aria-controls="admin-login-panel"
-              >
-                <Lock size={16} aria-hidden="true" />
-                관리자 로그인
-              </button>
-              {loginOpen ? (
-                <form id="admin-login-panel" className="admin-login-panel" onSubmit={handleLoginSubmit}>
-                  <label className="admin-access-field">
+              <div className="auth-button-row">
+                {isMember ? (
+                  <>
+                    <span className="auth-status-pill auth-status-pill--member">
+                      <UserCheck size={14} aria-hidden="true" />
+                      <span>{memberId ?? '회원'}</span>
+                    </span>
+                    <button
+                      type="button"
+                      onClick={handleMemberLogout}
+                      className="auth-header-button auth-header-button--member"
+                      aria-label="회원 로그아웃"
+                    >
+                      <LogOut size={16} aria-hidden="true" />
+                      <span>로그아웃</span>
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => togglePanel('member-signup')}
+                      className="auth-header-button auth-header-button--member"
+                      aria-label="회원가입"
+                      aria-expanded={activePanel === 'member-signup'}
+                      aria-controls="member-signup-panel"
+                    >
+                      <UserPlus size={16} aria-hidden="true" />
+                      <span>회원가입</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => togglePanel('member-login')}
+                      className="auth-header-button auth-header-button--member"
+                      aria-label="회원 로그인"
+                      aria-expanded={activePanel === 'member-login'}
+                      aria-controls="member-login-panel"
+                    >
+                      <LogIn size={16} aria-hidden="true" />
+                      <span>회원 로그인</span>
+                    </button>
+                  </>
+                )}
+
+                <button
+                  type="button"
+                  onClick={() => togglePanel('admin-login')}
+                  className="auth-header-button auth-header-button--admin"
+                  aria-label="관리자 로그인"
+                  aria-expanded={activePanel === 'admin-login'}
+                  aria-controls="admin-login-panel"
+                >
+                  <Lock size={16} aria-hidden="true" />
+                  <span>관리자 로그인</span>
+                </button>
+              </div>
+
+              {activePanel === 'member-signup' ? (
+                <form id="member-signup-panel" className="auth-login-panel" onSubmit={handleMemberSignupSubmit}>
+                  <label className="auth-access-field">
+                    <span>아이디</span>
+                    <input
+                      type="text"
+                      value={signupId}
+                      onChange={(event) => setSignupId(event.target.value)}
+                      autoComplete="username"
+                      required
+                    />
+                  </label>
+                  <label className="auth-access-field">
+                    <span>비밀번호</span>
+                    <input
+                      type="password"
+                      value={signupPassword}
+                      onChange={(event) => setSignupPassword(event.target.value)}
+                      autoComplete="new-password"
+                      required
+                    />
+                  </label>
+                  {memberSignupError ? <p className="auth-access-error">{memberSignupError}</p> : null}
+                  <button type="submit" className="auth-access-submit auth-access-submit--member">
+                    <UserPlus size={16} aria-hidden="true" />
+                    가입하기
+                  </button>
+                </form>
+              ) : null}
+
+              {activePanel === 'member-login' ? (
+                <form id="member-login-panel" className="auth-login-panel" onSubmit={handleMemberLoginSubmit}>
+                  <label className="auth-access-field">
+                    <span>아이디</span>
+                    <input
+                      type="text"
+                      value={memberLoginId}
+                      onChange={(event) => setMemberLoginId(event.target.value)}
+                      autoComplete="username"
+                      required
+                    />
+                  </label>
+                  <label className="auth-access-field">
+                    <span>비밀번호</span>
+                    <input
+                      type="password"
+                      value={memberLoginPassword}
+                      onChange={(event) => setMemberLoginPassword(event.target.value)}
+                      autoComplete="current-password"
+                      required
+                    />
+                  </label>
+                  {memberLoginError ? <p className="auth-access-error">{memberLoginError}</p> : null}
+                  <button type="submit" className="auth-access-submit auth-access-submit--member">
+                    <LogIn size={16} aria-hidden="true" />
+                    로그인
+                  </button>
+                </form>
+              ) : null}
+
+              {activePanel === 'admin-login' ? (
+                <form id="admin-login-panel" className="auth-login-panel" onSubmit={handleAdminLoginSubmit}>
+                  <label className="auth-access-field">
                     <span>아이디</span>
                     <input
                       type="text"
@@ -137,7 +315,7 @@ export default function AppHeader({
                       required
                     />
                   </label>
-                  <label className="admin-access-field">
+                  <label className="auth-access-field">
                     <span>비밀번호</span>
                     <input
                       type="password"
@@ -147,8 +325,8 @@ export default function AppHeader({
                       required
                     />
                   </label>
-                  {adminError ? <p className="admin-access-error">{adminError}</p> : null}
-                  <button type="submit" className="admin-access-submit">
+                  {adminError ? <p className="auth-access-error">{adminError}</p> : null}
+                  <button type="submit" className="auth-access-submit auth-access-submit--admin">
                     <LogIn size={16} aria-hidden="true" />
                     로그인
                   </button>
@@ -159,7 +337,7 @@ export default function AppHeader({
         </div>
         <button
           type="button"
-          onClick={onHome}
+          onClick={handleHomeClick}
           className="font-display text-xl font-extrabold tracking-[0.18em] text-rose-300 transition hover:text-rose-400 focus:outline-none focus-visible:rounded-full focus-visible:ring-4 focus-visible:ring-rose-100 sm:text-2xl"
         >
           Lesson Designer
