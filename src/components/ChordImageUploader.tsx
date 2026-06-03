@@ -1,4 +1,4 @@
-import { Trash2, Upload } from 'lucide-react';
+import { Lock, Trash2, Upload } from 'lucide-react';
 import type { ChangeEvent } from 'react';
 import type { ChordShape } from '../data/chordTypes';
 import type { UploadedChordImageView } from '../hooks/useIndexedChordImages';
@@ -7,19 +7,36 @@ type Props = {
   chord: ChordShape;
   uploadedImage?: UploadedChordImageView;
   error: string | null;
+  canManageImages: boolean;
   onSave: (chord: ChordShape, file: File) => Promise<void>;
   onDelete: (chordId: string) => Promise<void>;
 };
 
-export default function ChordImageUploader({ chord, uploadedImage, error, onSave, onDelete }: Props) {
+export default function ChordImageUploader({ chord, uploadedImage, error, canManageImages, onSave, onDelete }: Props) {
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     event.target.value = '';
 
-    if (file) {
+    if (file && canManageImages) {
       void onSave(chord, file);
     }
   };
+
+  if (!canManageImages) {
+    return (
+      <div className="mx-auto mt-5 flex max-w-3xl flex-wrap items-center justify-center gap-3 rounded-[8px] border border-rose-100 bg-white px-4 py-3 text-center shadow-neumorphic">
+        <span className="inline-flex h-10 items-center gap-2 rounded-full border border-rose-100 bg-rose-50 px-4 text-sm font-bold text-rose-400">
+          <Lock size={16} aria-hidden="true" />
+          관리자 로그인 후 업로드 가능
+        </span>
+        {uploadedImage ? (
+          <span className="text-sm font-semibold text-stone-400">현재 이미지: {uploadedImage.fileName}</span>
+        ) : (
+          <span className="text-sm font-semibold text-stone-400">코드 이미지 변경 권한이 잠겨 있습니다.</span>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto mt-5 flex max-w-3xl flex-wrap items-center justify-center gap-3 rounded-[8px] border border-rose-100 bg-white px-4 py-3 shadow-neumorphic">

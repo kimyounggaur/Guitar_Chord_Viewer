@@ -13,6 +13,7 @@ type Props = {
   relatedChords: ChordShape[];
   uploadedImage?: UploadedChordImageView;
   uploadError: string | null;
+  canManageImages: boolean;
   onSelectChord: (shape: ChordShape) => void;
   onBack: () => void;
   onSaveImage: (chord: ChordShape, file: File) => Promise<void>;
@@ -25,6 +26,7 @@ export default function ChordDetail({
   relatedChords,
   uploadedImage,
   uploadError,
+  canManageImages,
   onSelectChord,
   onBack,
   onSaveImage,
@@ -66,6 +68,7 @@ export default function ChordDetail({
             chord={chord}
             uploadedImage={uploadedImage}
             error={uploadError}
+            canManageImages={canManageImages}
             onSave={onSaveImage}
             onDelete={onDeleteImage}
           />

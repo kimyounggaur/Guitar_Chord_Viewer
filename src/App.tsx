@@ -6,6 +6,7 @@ import QualitySelector from './components/QualitySelector';
 import { getChordQuality } from './data/chordQualities';
 import { chords as staticChords } from './data/chords';
 import type { ChordQualityId, ChordShape } from './data/chordTypes';
+import { useAdminSession } from './hooks/useAdminSession';
 import { useIndexedChordImages } from './hooks/useIndexedChordImages';
 import { searchChords } from './hooks/useChordSearch';
 
@@ -16,6 +17,7 @@ export default function App() {
   const [selectedQuality, setSelectedQuality] = useState<ChordQualityId | null>(null);
   const [selectedChordId, setSelectedChordId] = useState<string | null>(null);
   const { imagesByChordId, error, saveImageForChord, deleteImageForChord } = useIndexedChordImages();
+  const adminSession = useAdminSession();
 
   const allChords = useMemo(
     () =>
@@ -74,9 +76,33 @@ export default function App() {
     setSearchTerm('');
   };
 
+  const handleSaveImage = async (chord: ChordShape, file: File) => {
+    if (!adminSession.isAdmin) {
+      return;
+    }
+
+    await saveImageForChord(chord, file);
+  };
+
+  const handleDeleteImage = async (chordId: string) => {
+    if (!adminSession.isAdmin) {
+      return;
+    }
+
+    await deleteImageForChord(chordId);
+  };
+
   return (
     <main className="min-h-screen overflow-x-hidden bg-[#fbfbfb] text-stone-800">
-      <AppHeader searchTerm={searchTerm} onSearchChange={handleSearchChange} onHome={handleHome} />
+      <AppHeader
+        searchTerm={searchTerm}
+        onSearchChange={handleSearchChange}
+        onHome={handleHome}
+        isAdmin={adminSession.isAdmin}
+        adminError={adminSession.loginError}
+        onAdminLogin={adminSession.login}
+        onAdminLogout={adminSession.logout}
+      />
 
       <div className="animate-[viewIn_.25s_ease_both]">
         {view === 'qualities' ? (
@@ -100,10 +126,11 @@ export default function App() {
             relatedChords={allChords.filter((chord) => chord.quality === selectedChord.quality)}
             uploadedImage={imagesByChordId[selectedChord.id]}
             uploadError={error}
+            canManageImages={adminSession.isAdmin}
             onSelectChord={handleSelectChord}
             onBack={handleBack}
-            onSaveImage={saveImageForChord}
-            onDeleteImage={deleteImageForChord}
+            onSaveImage={handleSaveImage}
+            onDeleteImage={handleDeleteImage}
           />
         ) : null}
       </div>

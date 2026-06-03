@@ -1,12 +1,39 @@
-import { Home, Search } from 'lucide-react';
+import { Home, Lock, LogIn, LogOut, Search } from 'lucide-react';
+import type { FormEvent } from 'react';
+import { useState } from 'react';
 
 type Props = {
   searchTerm: string;
   onSearchChange: (value: string) => void;
   onHome: () => void;
+  isAdmin: boolean;
+  adminError: string | null;
+  onAdminLogin: (id: string, password: string) => boolean;
+  onAdminLogout: () => void;
 };
 
-export default function AppHeader({ searchTerm, onSearchChange, onHome }: Props) {
+export default function AppHeader({
+  searchTerm,
+  onSearchChange,
+  onHome,
+  isAdmin,
+  adminError,
+  onAdminLogin,
+  onAdminLogout,
+}: Props) {
+  const [loginOpen, setLoginOpen] = useState(false);
+  const [adminId, setAdminId] = useState('');
+  const [adminPassword, setAdminPassword] = useState('');
+
+  const handleLoginSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    if (onAdminLogin(adminId, adminPassword)) {
+      setLoginOpen(false);
+      setAdminPassword('');
+    }
+  };
+
   return (
     <header className="mx-auto flex h-[clamp(76px,9vh,112px)] w-full max-w-[1760px] flex-wrap items-center justify-between gap-4 px-[clamp(24px,5vw,84px)] py-4">
       <div className="flex min-w-0 flex-1 items-center gap-3">
@@ -67,13 +94,77 @@ export default function AppHeader({ searchTerm, onSearchChange, onHome }: Props)
           </g>
         </svg>
       </div>
-      <button
-        type="button"
-        onClick={onHome}
-        className="font-display text-xl font-extrabold tracking-[0.18em] text-rose-300 transition hover:text-rose-400 focus:outline-none focus-visible:rounded-full focus-visible:ring-4 focus-visible:ring-rose-100 sm:text-2xl"
-      >
-        Lesson Designer
-      </button>
+      <div className="flex shrink-0 items-center gap-3">
+        <div className="admin-access">
+          {isAdmin ? (
+            <div className="flex items-center gap-2">
+              <span className="admin-status-pill">
+                <Lock size={14} aria-hidden="true" />
+                관리자
+              </span>
+              <button
+                type="button"
+                onClick={onAdminLogout}
+                className="admin-header-button"
+                aria-label="관리자 로그아웃"
+              >
+                <LogOut size={16} aria-hidden="true" />
+                로그아웃
+              </button>
+            </div>
+          ) : (
+            <>
+              <button
+                type="button"
+                onClick={() => setLoginOpen((open) => !open)}
+                className="admin-header-button"
+                aria-label="관리자 로그인"
+                aria-expanded={loginOpen}
+                aria-controls="admin-login-panel"
+              >
+                <Lock size={16} aria-hidden="true" />
+                관리자 로그인
+              </button>
+              {loginOpen ? (
+                <form id="admin-login-panel" className="admin-login-panel" onSubmit={handleLoginSubmit}>
+                  <label className="admin-access-field">
+                    <span>아이디</span>
+                    <input
+                      type="text"
+                      value={adminId}
+                      onChange={(event) => setAdminId(event.target.value)}
+                      autoComplete="username"
+                      required
+                    />
+                  </label>
+                  <label className="admin-access-field">
+                    <span>비밀번호</span>
+                    <input
+                      type="password"
+                      value={adminPassword}
+                      onChange={(event) => setAdminPassword(event.target.value)}
+                      autoComplete="current-password"
+                      required
+                    />
+                  </label>
+                  {adminError ? <p className="admin-access-error">{adminError}</p> : null}
+                  <button type="submit" className="admin-access-submit">
+                    <LogIn size={16} aria-hidden="true" />
+                    로그인
+                  </button>
+                </form>
+              ) : null}
+            </>
+          )}
+        </div>
+        <button
+          type="button"
+          onClick={onHome}
+          className="font-display text-xl font-extrabold tracking-[0.18em] text-rose-300 transition hover:text-rose-400 focus:outline-none focus-visible:rounded-full focus-visible:ring-4 focus-visible:ring-rose-100 sm:text-2xl"
+        >
+          Lesson Designer
+        </button>
+      </div>
     </header>
   );
 }
