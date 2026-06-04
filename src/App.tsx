@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import AppHeader from './components/AppHeader';
+import AdminPage, { type AdminQualityStat } from './components/AdminPage';
 import ChordDetail from './components/ChordDetail';
 import ChordGrid from './components/ChordGrid';
 import QualitySelector from './components/QualitySelector';
-import { getChordQuality } from './data/chordQualities';
+import { chordQualities, getChordQuality } from './data/chordQualities';
 import { chords as staticChords } from './data/chords';
 import type { ChordQualityId, ChordShape } from './data/chordTypes';
 import { useCuteClickSound } from './hooks/useCuteClickSound';
@@ -11,7 +12,7 @@ import { useIndexedChordImages } from './hooks/useIndexedChordImages';
 import { useSupabaseAuthSession } from './hooks/useSupabaseAuthSession';
 import { searchChords } from './hooks/useChordSearch';
 
-type AppView = 'qualities' | 'grid' | 'detail';
+type AppView = 'qualities' | 'grid' | 'detail' | 'admin';
 
 export default function App() {
   useCuteClickSound();
@@ -19,6 +20,7 @@ export default function App() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedQuality, setSelectedQuality] = useState<ChordQualityId | null>(null);
   const [selectedChordId, setSelectedChordId] = useState<string | null>(null);
+  const [isAdminPageOpen, setIsAdminPageOpen] = useState(false);
   const { imagesByChordId, error, saveImageForChord, deleteImageForChord } = useIndexedChordImages();
   const authSession = useSupabaseAuthSession();
   const canSearch = authSession.isAdmin || authSession.isMember;
@@ -51,22 +53,56 @@ export default function App() {
     [activeQuality, allChords, searchTerm],
   );
 
-  const view: AppView = selectedChord && !hasSearchTerm ? 'detail' : activeQuality || hasSearchTerm ? 'grid' : 'qualities';
+  const qualityStats = useMemo<AdminQualityStat[]>(
+    () =>
+      chordQualities.map((quality) => {
+        const qualityChords = allChords.filter((chord) => chord.quality === quality.id);
+
+        return {
+          id: quality.id,
+          label: quality.label,
+          color: quality.color,
+          chordCount: qualityChords.length,
+          uploadedCount: qualityChords.filter((chord) => Boolean(imagesByChordId[chord.id])).length,
+          sourceImageCount: qualityChords.filter((chord) => Boolean(chord.image)).length,
+        };
+      }),
+    [allChords, imagesByChordId],
+  );
+
+  const uploadedImageCount = Object.keys(imagesByChordId).length;
+  const view: AppView = isAdminPageOpen
+    ? 'admin'
+    : selectedChord && !hasSearchTerm
+      ? 'detail'
+      : activeQuality || hasSearchTerm
+        ? 'grid'
+        : 'qualities';
 
   const handleHome = () => {
+    setIsAdminPageOpen(false);
     setSelectedChordId(null);
     setSelectedQuality(null);
     setSearchTerm('');
   };
 
   const handleSelectQuality = (quality: ChordQualityId) => {
+    setIsAdminPageOpen(false);
     setSelectedQuality(quality);
     setSelectedChordId(null);
   };
 
   const handleSelectChord = (shape: ChordShape) => {
+    setIsAdminPageOpen(false);
     setSelectedQuality(shape.quality);
     setSelectedChordId(shape.id);
+  };
+
+  const handleAdminPage = () => {
+    setIsAdminPageOpen(true);
+    setSelectedChordId(null);
+    setSelectedQuality(null);
+    setSearchTerm('');
   };
 
   const handleSearchChange = (value: string) => {
@@ -74,6 +110,7 @@ export default function App() {
       return;
     }
 
+    setIsAdminPageOpen(false);
     setSearchTerm(value);
     if (value.trim()) {
       setSelectedChordId(null);
@@ -113,6 +150,8 @@ export default function App() {
         canSearch={canSearch}
         onSearchChange={handleSearchChange}
         onHome={handleHome}
+        onAdminPage={handleAdminPage}
+        isAdminPageActive={view === 'admin'}
         isAuthLoading={authSession.isLoading}
         authConfigError={authSession.authConfigError}
         isMember={authSession.isMember}
@@ -130,6 +169,18 @@ export default function App() {
       />
 
       <div className="animate-[viewIn_.25s_ease_both]">
+        {view === 'admin' ? (
+          <AdminPage
+            isAdmin={authSession.isAdmin}
+            adminId={authSession.memberId}
+            totalChords={allChords.length}
+            uploadedImageCount={uploadedImageCount}
+            qualityStats={qualityStats}
+            onHome={handleHome}
+            onSelectQuality={handleSelectQuality}
+          />
+        ) : null}
+
         {view === 'qualities' ? (
           <QualitySelector selectedQuality={selectedQuality} onSelectQuality={handleSelectQuality} />
         ) : null}

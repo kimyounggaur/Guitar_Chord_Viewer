@@ -1,4 +1,4 @@
-import { Home, Lock, LogIn, LogOut, Search, ShieldCheck, UserCheck, UserPlus } from 'lucide-react';
+import { Home, LayoutDashboard, Lock, LogIn, LogOut, Search, ShieldCheck, UserCheck, UserPlus } from 'lucide-react';
 import type { FormEvent } from 'react';
 import { useState } from 'react';
 
@@ -9,6 +9,8 @@ type Props = {
   canSearch: boolean;
   onSearchChange: (value: string) => void;
   onHome: () => void;
+  onAdminPage: () => void;
+  isAdminPageActive: boolean;
   isAuthLoading: boolean;
   authConfigError: string | null;
   isMember: boolean;
@@ -30,6 +32,8 @@ export default function AppHeader({
   canSearch,
   onSearchChange,
   onHome,
+  onAdminPage,
+  isAdminPageActive,
   isAuthLoading,
   authConfigError,
   isMember,
@@ -60,6 +64,11 @@ export default function AppHeader({
   const handleHomeClick = () => {
     setActivePanel(null);
     onHome();
+  };
+
+  const handleAdminPageClick = () => {
+    setActivePanel(null);
+    onAdminPage();
   };
 
   const handleMemberSignupSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -182,6 +191,18 @@ export default function AppHeader({
               </span>
               <button
                 type="button"
+                onClick={handleAdminPageClick}
+                className={`auth-header-button auth-header-button--admin ${
+                  isAdminPageActive ? 'auth-header-button--active' : ''
+                }`}
+                aria-label="관리자 페이지"
+                aria-current={isAdminPageActive ? 'page' : undefined}
+              >
+                <LayoutDashboard size={16} aria-hidden="true" />
+                <span>관리자 페이지</span>
+              </button>
+              <button
+                type="button"
                 onClick={handleAdminLogout}
                 className="auth-header-button auth-header-button--admin"
                 aria-label="관리자 로그아웃"
@@ -235,6 +256,19 @@ export default function AppHeader({
                     </button>
                   </>
                 )}
+
+                <button
+                  type="button"
+                  onClick={handleAdminPageClick}
+                  className={`auth-header-button auth-header-button--admin ${
+                    isAdminPageActive ? 'auth-header-button--active' : ''
+                  }`}
+                  aria-label="관리자 페이지"
+                  aria-current={isAdminPageActive ? 'page' : undefined}
+                >
+                  <LayoutDashboard size={16} aria-hidden="true" />
+                  <span>관리자 페이지</span>
+                </button>
 
                 <button
                   type="button"
