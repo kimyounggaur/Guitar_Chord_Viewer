@@ -682,26 +682,39 @@ button {
 }
 
 .finger-tooltip-target {
+  --finger-ring-size: clamp(42px, 6vw, 86px);
   position: absolute;
-  width: clamp(34px, 4.6vw, 72px);
-  height: clamp(34px, 4.6vw, 72px);
+  width: var(--finger-ring-size);
+  height: var(--finger-ring-size);
   border-radius: 9999px;
   cursor: help;
   pointer-events: auto;
   transform: translate(-50%, -50%);
 }
 
+.finger-tooltip-target--thumb {
+  --finger-ring-size: clamp(36px, 5.6vw, 58px);
+}
+
+.finger-tooltip-target--large {
+  --finger-ring-size: clamp(76px, 8vw, 132px);
+}
+
 .finger-tooltip-target::after {
   position: absolute;
-  inset: 24%;
+  inset: 0;
   border-radius: 9999px;
   content: "";
-  background: rgba(16, 185, 129, 0.12);
+  border: clamp(3px, 0.38vw, 6px) solid #facc15;
+  background: rgba(255, 247, 173, 0.08);
+  box-shadow:
+    0 0 0 2px rgba(255, 255, 255, 0.72),
+    0 10px 22px rgba(250, 204, 21, 0.26);
   opacity: 0;
-  transform: scale(0.72);
+  transform: scale(0.78);
   transition:
     opacity 180ms ease,
-    transform 180ms ease;
+    transform 220ms cubic-bezier(0.2, 1.35, 0.32, 1);
 }
 
 .finger-tooltip-label {
@@ -755,6 +768,26 @@ button {
 
 .svg-finger-tooltip-target {
   cursor: help;
+  outline: none;
+}
+
+.svg-finger-ring {
+  stroke: #facc15;
+  stroke-width: 5;
+  opacity: 0;
+  transform: scale(0.78);
+  transform-box: fill-box;
+  transform-origin: center;
+  transition:
+    opacity 180ms ease,
+    transform 220ms cubic-bezier(0.2, 1.35, 0.32, 1);
+  filter: drop-shadow(0 4px 5px rgba(250, 204, 21, 0.32));
+}
+
+.svg-finger-tooltip-target:hover .svg-finger-ring,
+.svg-finger-tooltip-target:focus-visible .svg-finger-ring {
+  opacity: 1;
+  transform: scale(1);
 }
 
 .admin-page {

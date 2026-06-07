@@ -95,7 +95,7 @@ export default function Fretboard({ shape, size = 'thumb' }: Props) {
             return (
               <span
                 key={`finger-tip-${position.string}-${position.fret}-${position.finger}`}
-                className="finger-tooltip-target"
+                className={`finger-tooltip-target finger-tooltip-target--${size}`}
                 style={{
                   left: `${fingerXPercent(position.fret, fretCount)}%`,
                   top: `${fingerYPercent(position.string)}%`,
@@ -194,10 +194,12 @@ export default function Fretboard({ shape, size = 'thumb' }: Props) {
             className="svg-finger-tooltip-target"
             transform={`translate(${x} ${y})`}
             aria-label={label ?? undefined}
+            tabIndex={label ? 0 : undefined}
           >
             {label ? <title>{label}</title> : null}
             <rect x="-32" y="-18" width="64" height="36" rx="18" fill="#fffdf8" stroke="#232323" strokeWidth="3" />
             <line x1="-14" y1="-6" x2="14" y2="-15" stroke="#262626" strokeWidth="3" strokeLinecap="round" />
+            <circle className="svg-finger-ring" cx="0" cy="0" r="25" fill="none" />
             <circle cx="0" cy="0" r="11" fill="#1f1f1d" />
             {position.finger ? (
               <text x="0" y="31" fill="#262626" textAnchor="middle" fontSize="13" fontWeight="800">
